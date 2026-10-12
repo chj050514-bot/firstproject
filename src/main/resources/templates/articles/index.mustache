@@ -1,0 +1,26 @@
+{{>layouts/header}}
+
+
+<table class="table">
+    <thead>
+    <tr>
+        <th scope="col">Id</th>
+        <th scope="col">Title</th>
+        <th scope="col">Content</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    {{#articlesList}}
+        <tr>
+            <th>{{id}}</th>
+            <td>{{title}}</td>
+            <td>{{content}}</td>
+        </tr>
+    {{/articlesList}}
+    </tbody>
+</table>
+
+<a href="/articles/new">글 작성하기</a>
+
+{{>layouts/footer}}

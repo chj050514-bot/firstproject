@@ -2,12 +2,19 @@ package com.example.firstproject.controller;
 
 import com.example.firstproject.dto.ArticleForm;
 import com.example.firstproject.entity.Article;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import com.example.firstproject.repository.ArticleRepository;
 
+import java.util.List;
+
+
+@Slf4j //Simple Logging Facade for Java
 @Controller
 public class ArticleController {
     //의존성 주입 = DI, Dependency Injection
@@ -21,19 +28,50 @@ public class ArticleController {
 
     @PostMapping("/articles/create")
     public String createArticle(ArticleForm form){ //form 태그 데이터륽 DTO로 받는 순간
-        System.out.println(form.toString()); //DTO에 폼 데이터가 잘 담겼는지 확인하는
+        // System.out.println(form.toString()); DTO에 폼 데이터가 잘 담겼는지 확인하는
 
+        log.info(form.toString());
+        log.debug(form.toString());
         //1. dto -> Entity 변환
 
         Article article = form.toEntity();
-        System.out.println(article.toString());
+        log.trace(article.toString());
 
         //2. 레포 -> Entity -> DB 저장
 
         Article saved = articleRepository.save(article); //DB에 저장하는 코드 1줄
-        System.out.println(saved.toString());
+        log.info(saved.toString());
 
 
-        return "";
+        // 사용자가 작성한 게시글 상세페이지
+        //
+        return "redirect:/articles/"+ saved.getId();
     }
-}
+
+    @GetMapping ("/articles/{id}")
+    public String show(@PathVariable Long id, Model model){
+
+        log.info("id ="+id);
+
+        Article articleEntity = articleRepository.findById(id).orElse(null);
+
+        model.addAttribute("article", articleEntity); //attribute
+
+        return "articles/show";
+
+    }
+    @GetMapping("/articles")
+    public String index(Model model){
+
+        //모든 데이터 가져오기
+        Iterable<Article> articleEntityList = articleRepository.findAll();
+
+        // 모델에 등록
+        model.addAttribute("articlesList", articleEntityList);
+
+        // 화면 전달
+        return "articles/index";
+    }
+
+    }
+

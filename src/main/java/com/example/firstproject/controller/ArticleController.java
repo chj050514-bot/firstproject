@@ -22,12 +22,12 @@ public class ArticleController {
     private ArticleRepository articleRepository; // 객체 선언
 
     @GetMapping("/articles/new")
-    public String newArticleForm(){
+    public String newArticleForm() {
         return "articles/new";
     }
 
     @PostMapping("/articles/create")
-    public String createArticle(ArticleForm form){ //form 태그 데이터륽 DTO로 받는 순간
+    public String createArticle(ArticleForm form) { //form 태그 데이터륽 DTO로 받는 순간
         // System.out.println(form.toString()); DTO에 폼 데이터가 잘 담겼는지 확인하는
 
         log.info(form.toString());
@@ -45,13 +45,13 @@ public class ArticleController {
 
         // 사용자가 작성한 게시글 상세페이지
         //
-        return "redirect:/articles/"+ saved.getId();
+        return "redirect:/articles/" + saved.getId();
     }
 
-    @GetMapping ("/articles/{id}")
-    public String show(@PathVariable Long id, Model model){
+    @GetMapping("/articles/{id}")
+    public String show(@PathVariable Long id, Model model) {
 
-        log.info("id ="+id);
+        log.info("id =" + id);
 
         Article articleEntity = articleRepository.findById(id).orElse(null);
 
@@ -60,8 +60,9 @@ public class ArticleController {
         return "articles/show";
 
     }
+
     @GetMapping("/articles")
-    public String index(Model model){
+    public String index(Model model) {
 
         //모든 데이터 가져오기
         Iterable<Article> articleEntityList = articleRepository.findAll();
@@ -73,5 +74,35 @@ public class ArticleController {
         return "articles/index";
     }
 
+    @GetMapping ("/articles/{id}/edit")
+    public String edit(@PathVariable Long id, Model model){
+
+        Article articleEntity = articleRepository.findById(id).orElse(null);
+
+        model.addAttribute("article", articleEntity); //attribute
+
+        return "articles/edit";
+
     }
+
+    @PostMapping ("/articles/update")
+    public String update(ArticleForm form){
+        log.info(form.toString());
+        //1. DTO를 Entity로 변환
+        Article entity = form.toEntity();
+        log.info(entity.toString());
+
+        //2. 엔티티를 DB 저장
+        //2-1. 기존 데이터를 수정 하려고 함-> 기존 데이터 가져오기
+        Article target = articleRepository.findById(entity.getId())
+                .orElse(null);
+        //2-2. 기존데이터를 갱신
+        if(target != null){
+            articleRepository.save(entity);
+        }
+
+        //3. 수정 결과 리다이렉트
+        return "redirect:/articles/" + target.getId();
+    }
+}
 
